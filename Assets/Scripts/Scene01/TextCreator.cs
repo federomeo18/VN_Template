@@ -1,35 +1,37 @@
-using System.Collections;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class TextCreator : MonoBehaviour
 {
-    public static TMPro.TMP_Text viewText;
-    public static bool runTextPrint;
-    public static int charCount;
-    [SerializeField] string transferText;
-    [SerializeField] int internalCount;
+    [SerializeField] private TMP_Text textUI;
+    [SerializeField] private float typingSpeed = 0.03f;
 
-    // Update is called once per frame
-    void Update()
+    private Coroutine typingCoroutine;
+
+    public IEnumerator TypeText(string text)
     {
-        internalCount = charCount;
-        charCount = GetComponent<TMPro.TMP_Text>().text.Length;
-        if (runTextPrint)
+        // Stop previous typing if running
+        if (typingCoroutine != null)
         {
-            runTextPrint = false;
-            viewText = GetComponent<TMPro.TMP_Text>();
-            transferText = viewText.text;
-            viewText.text = "";
-            StartCoroutine(RollText());
+            StopCoroutine(typingCoroutine);
         }
+
+        typingCoroutine = StartCoroutine(TypeRoutine(text));
+
+        yield return typingCoroutine; // 👈 this is the key
     }
 
-    IEnumerator RollText()
+    private IEnumerator TypeRoutine(string text)
     {
-        foreach (char c in transferText)
+        textUI.text = "";
+
+        foreach (char c in text)
         {
-            viewText.text += c;
-            yield return new WaitForSeconds(0.03f);
+            textUI.text += c;
+            yield return new WaitForSeconds(typingSpeed);
         }
+
+        typingCoroutine = null;
     }
 }

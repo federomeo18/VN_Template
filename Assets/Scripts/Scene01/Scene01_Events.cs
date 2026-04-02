@@ -1,29 +1,26 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.UI;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Scene01_Events : MonoBehaviour
 {
+    [Header("Scene Objects")]
     [SerializeField] private GameObject FadeScreenIn;
     [SerializeField] private GameObject Char1;
     [SerializeField] private GameObject Char2;
     [SerializeField] private GameObject TextBox;
 
-    [SerializeField] string textToSpeak;
-    [SerializeField] int currentTextLenght;
-    [SerializeField] int textLenght;
-    [SerializeField] GameObject mainTextObject;
+    [Header("Audio")]
+    [SerializeField] private AudioSource audio1;
+    [SerializeField] private AudioSource audio2;
 
-    void Update()
-    {
-        textLenght = TextCreator.charCount;
-    }
+    [Header("Systems")]
+    [SerializeField] private CSVLoader csvLoader;
+    [SerializeField] private TextCreator textCreator;
+    [SerializeField] private TMPro.TMP_Text speakerNameText;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         StartCoroutine(EventStarter());
@@ -31,24 +28,67 @@ public class Scene01_Events : MonoBehaviour
 
     IEnumerator EventStarter()
     {
+        // Intro fade
         FadeScreenIn.SetActive(true);
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(1f);
         FadeScreenIn.SetActive(false);
+
+        // First character enters
         Char1.SetActive(true);
-        yield return new WaitForSeconds(2);
-        TextBox.SetActive(true);
-        textToSpeak = "Hola Loli 2, parece que tienes algo para decir.";
-        mainTextObject.GetComponent<TMPro.TMP_Text>().text = textToSpeak;
-        currentTextLenght = textToSpeak.Length;
-        TextCreator.runTextPrint = true;
+        audio1.Play();
 
-        yield return new WaitUntil(() => textLenght == currentTextLenght);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(2f);
 
+        // Load dialogue from CSV
+        List<DialogueLine> dialogue = csvLoader.LoadDialogue();
 
-        yield return new WaitForSeconds(2);
+        // Play all lines sequentially
+        foreach (DialogueLine line in dialogue)
+        {
+            yield return ShowLine(line);
+        }
+
+        // Continue scene after dialogue
+        yield return new WaitForSeconds(2f);
+
         Char2.SetActive(true);
-        yield return new WaitForSeconds(4);
 
+        yield return new WaitForSeconds(4f);
+        audio2.Play();
+    }
+
+    IEnumerator ShowLine(DialogueLine line)
+    {
+        TextBox.SetActive(true);
+
+        // Update speaker name
+        if (speakerNameText != null)
+            speakerNameText.text = line.speaker;
+
+        // Optional: react to speaker
+        HandleSpeaker(line.speaker);
+
+        // Type the text and wait until it's fully done
+        yield return textCreator.TypeText(line.text);
+
+        // Wait after the line (from CSV)
+        yield return new WaitForSeconds(line.delay);
+    }
+
+    void HandleSpeaker(string speaker)
+    {
+        // Basic example, expand later
+        switch (speaker)
+        {
+            case "Char1":
+                Char1.SetActive(true);
+                Char2.SetActive(false);
+                break;
+
+            case "Char2":
+                Char2.SetActive(true);
+                Char1.SetActive(false);
+                break;
+        }
     }
 }
