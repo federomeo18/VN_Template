@@ -1,4 +1,4 @@
-﻿id,Character,Text,Delay
-1,Loli 1,"Hola Loli 2, parece que tienes algo para decir.",0.5
-2,Loli 2,"""Simona la cacarisa""",0.5
-3,Loli 2,"Por favor, no me quiero convertir en un furro. Te lo ruego",0.5
+﻿id,Character,Text,Delay,Scene
+1,Loli 1,"Hola Loli 2, parece que tienes algo para decir.",0.5,1
+2,Loli 2,Simona la cacarisa,0.5,1
+3,Loli 2,"Por favor, no me quiero convertir en un furro. Te lo ruego",0.5,1
