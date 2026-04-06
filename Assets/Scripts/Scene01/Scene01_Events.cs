@@ -55,6 +55,10 @@ public class Scene01_Events : MonoBehaviour
 
         yield return new WaitForSeconds(4f);
         audio2.Play();
+
+        Debug.Log(GameManager.Instance.playerStats.Stamina.ToString());
+        GameManager.Instance.playerStats.Stamina += 1;
+        Debug.Log(GameManager.Instance.playerStats.Stamina.ToString());
     }
 
     IEnumerator ShowLine(DialogueLine line)
